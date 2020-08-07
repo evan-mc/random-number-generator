@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Random Number Generator</string>
+    <string name="button_text">Roll</string>
+    <string name="number_text">0</string>
+</resources>
