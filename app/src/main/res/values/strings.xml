@@ -5,5 +5,9 @@
     <string name="number_length">1</string>
     <string name="start_button_text">Start</string>
     <string name="stop_button_text">Stop</string>
-    <string name="timer_text">Time until stop: 30</string>
+    <string name="timer_text">Time until stop: %1$s</string>
+    <string name="checkbox_text">Use timer</string>
+    <string name="digit_text_view_text">Number of digits:</string>
+    <string name="timer_edit_text">30</string>
+    <string name="timer_length_text">Timer length:</string>
 </resources>
