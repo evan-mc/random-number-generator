@@ -1,23 +1,30 @@
 package android.example.firstapp
 
-import androidx.appcompat.app.AppCompatActivity
+import android.app.Activity
 import android.os.Bundle
-import android.os.CountDownTimer
 import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
-import android.widget.*
+import android.view.inputmethod.InputMethodManager
+import android.widget.Button
+import android.widget.CheckBox
+import android.widget.EditText
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatCheckBox
-import java.util.*
 import kotlin.random.Random
+
 
 class MainActivity : AppCompatActivity() {
 
     lateinit var numberTextView : TextView
+
     lateinit var numberRollLength : EditText
+    lateinit var numberRollText : TextView
+
     lateinit var timerTextView : TextView
 
     lateinit var rollButton : Button
@@ -32,7 +39,9 @@ class MainActivity : AppCompatActivity() {
     lateinit var timerLength : EditText
     lateinit var timerLengthText: TextView
 
-    var defaultTime : String = "30"
+    var hasStartedTimer : Boolean = false
+
+    var time : Int = 30
 
     private val repeatRollUntilStopped = object : Runnable {
         var countdown : Int = 0
@@ -47,11 +56,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         private fun updateCounter() {
-            if(countdown >= 30000)
+            if(countdown >= (time.toInt() * 1000))
             {
                 handler.removeMessages(0)
-                timerTextView.text = getString(R.string.timer_text, defaultTime)
+                timerTextView.text = getString(R.string.timer_text, time.toString())
                 countdown = 0
+                hasStartedTimer = false
             }
 
             countdown += 100
@@ -73,10 +83,13 @@ class MainActivity : AppCompatActivity() {
         handler = Handler(Looper.getMainLooper())
 
         numberTextView = findViewById(R.id.number_text_view)
+
         numberRollLength = findViewById(R.id.number_length)
+        numberRollText = findViewById(R.id.digit_text_view)
+
         timerTextView = findViewById(R.id.timer_text_view)
 
-        timerTextView.text = getString(R.string.timer_text, defaultTime)
+        timerTextView.text = getString(R.string.timer_text, time.toString())
 
         checkBox = findViewById(R.id.checkbox)
 
@@ -92,21 +105,67 @@ class MainActivity : AppCompatActivity() {
 
         startButton = findViewById(R.id.start_button)
         startButton.setOnClickListener {
-            repeatRollUntilStopped.run()
+            if(!hasStartedTimer) {
+                repeatRollUntilStopped.run()
+                hasStartedTimer = true
+
+                //hide ui elements that shouldnt be visible during the timer
+                timerLength.visibility = View.GONE
+                timerLengthText.visibility = View.GONE
+
+                numberRollLength.visibility = View.GONE
+                numberRollText.visibility = View.GONE
+            }
         }
 
         stopButton = findViewById(R.id.stop_button)
         stopButton.setOnClickListener {
             Log.i("MainActivity", "stop button pressed")
             handler.removeMessages(0)
-            timerTextView.text = getString(R.string.timer_text, defaultTime)
+            timerTextView.text = getString(R.string.timer_text, time.toString())
 
             //reset countdown for next click
             repeatRollUntilStopped.countdown = 0
+            hasStartedTimer = false
+
+            //unhide ui elements
+            timerLength.visibility = View.VISIBLE
+            timerLengthText.visibility = View.VISIBLE
+
+            numberRollLength.visibility = View.VISIBLE
+            numberRollText.visibility = View.VISIBLE
         }
 
         numberRollLength.setOnKeyListener { _, keyCode, _ ->
+            //prevents edittext from being empty
+            if(keyCode == KeyEvent.KEYCODE_DEL && numberRollLength.text.isEmpty()) {
 
+                numberRollLength.setText("0")
+
+                //set cursor to end of edittext
+                numberRollLength.setSelection(numberRollLength.text.length)
+            }
+            false
+        }
+
+        timerLength.setOnKeyListener { _, keyCode, _ ->
+            //prevents edittext from being empty
+            if(keyCode == KeyEvent.KEYCODE_DEL && timerLength.text.isEmpty()) {
+
+                timerLength.setText("0")
+
+                //set cursor to end of edittext
+                timerLength.setSelection(timerLength.text.length)
+            }
+            else if(keyCode == KeyEvent.KEYCODE_ENTER) {
+                Log.i("MainActivity", "Done button pressed!")
+                timerTextView.text = getString(R.string.timer_text, timerLength.text)
+
+                time = timerLength.text.toString().toInt()
+
+                hideKeyboard(this)
+            }
+            false
         }
 
     }
@@ -143,8 +202,9 @@ class MainActivity : AppCompatActivity() {
                 rollButton.visibility = View.VISIBLE
 
                 handler.removeMessages(0)
-                timerTextView.text = getString(R.string.timer_text, defaultTime)
+                timerTextView.text = getString(R.string.timer_text, time.toString())
                 repeatRollUntilStopped.countdown = 0
+                hasStartedTimer = false
 
                 startButton.visibility = View.GONE
                 stopButton.visibility = View.GONE
@@ -154,7 +214,23 @@ class MainActivity : AppCompatActivity() {
                 timerLength.visibility = View.GONE
                 timerLengthText.visibility = View.GONE
             }
+
+            //make visible in the event they were hidden from starting the timer
+            numberRollLength.visibility = View.VISIBLE
+            numberRollText.visibility = View.VISIBLE
         }
+    }
+
+    fun hideKeyboard(activity: Activity) {
+        val imm: InputMethodManager =
+            activity.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+        //Find the currently focused view, so we can grab the correct window token from it.
+        var view = activity.currentFocus
+        //If no view currently has focus, create a new one, just so we can grab a window token from it
+        if (view == null) {
+            view = View(activity)
+        }
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
 }

@@ -56,11 +56,11 @@
 
     <EditText
         android:id="@+id/number_length"
-        android:layout_width="wrap_content"
+        android:layout_width="30dp"
         android:layout_height="50dp"
+        android:background="@null"
         android:inputType="number"
         android:text="@string/number_length"
-        android:background="@null"
         app:layout_constraintBottom_toTopOf="@+id/roll_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -68,12 +68,13 @@
 
     <EditText
         android:id="@+id/timer_edit_text"
-        android:layout_width="wrap_content"
+        android:layout_width="30dp"
         android:layout_height="50dp"
         android:inputType="number"
         android:background="@null"
         android:text="@string/timer_edit_text"
         android:visibility="gone"
+        android:imeOptions="actionGo"
         app:layout_constraintBottom_toTopOf="@+id/number_text_view"
         app:layout_constraintEnd_toEndOf="@+id/timer_text_view"
         app:layout_constraintHorizontal_bias="0.69"
