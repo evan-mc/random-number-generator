@@ -9,10 +9,7 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.Button
-import android.widget.CheckBox
-import android.widget.EditText
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatCheckBox
 import kotlin.random.Random
@@ -56,12 +53,19 @@ class MainActivity : AppCompatActivity() {
         }
 
         private fun updateCounter() {
-            if(countdown >= (time.toInt() * 1000))
+            if(countdown >= (time * 1000))
             {
                 handler.removeMessages(0)
                 timerTextView.text = getString(R.string.timer_text, time.toString())
                 countdown = 0
                 hasStartedTimer = false
+
+                //unhide ui elements
+                timerLength.visibility = View.VISIBLE
+                timerLengthText.visibility = View.VISIBLE
+
+                numberRollLength.visibility = View.VISIBLE
+                numberRollText.visibility = View.VISIBLE
             }
 
             countdown += 100
@@ -145,6 +149,13 @@ class MainActivity : AppCompatActivity() {
                 //set cursor to end of edittext
                 numberRollLength.setSelection(numberRollLength.text.length)
             }
+            else if(numberRollLength.text[0] == '0') //strip leading 0 if adding another digit
+                when (keyCode) {
+                    KeyEvent.KEYCODE_1, KeyEvent.KEYCODE_2, KeyEvent.KEYCODE_3, KeyEvent.KEYCODE_4,
+                    KeyEvent.KEYCODE_5, KeyEvent.KEYCODE_6, KeyEvent.KEYCODE_7, KeyEvent.KEYCODE_8,
+                    KeyEvent.KEYCODE_9
+                    -> numberRollLength.setText(numberRollLength.text.substring(1))
+                }
             false
         }
 
@@ -165,6 +176,13 @@ class MainActivity : AppCompatActivity() {
 
                 hideKeyboard(this)
             }
+            else if(timerLength.text[0] == '0') //strip leading 0 if adding another digit
+                when (keyCode) {
+                    KeyEvent.KEYCODE_1, KeyEvent.KEYCODE_2, KeyEvent.KEYCODE_3, KeyEvent.KEYCODE_4,
+                    KeyEvent.KEYCODE_5, KeyEvent.KEYCODE_6, KeyEvent.KEYCODE_7, KeyEvent.KEYCODE_8,
+                    KeyEvent.KEYCODE_9
+                    -> timerLength.setText(timerLength.text.substring(1))
+                }
             false
         }
 
