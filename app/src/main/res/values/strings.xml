@@ -10,4 +10,9 @@
     <string name="digit_text_view_text">Number of digits:</string>
     <string name="timer_edit_text">30</string>
     <string name="timer_length_text">Timer length:</string>
+    <string name="range_checkbox_text">Use range</string>
+    <string name="min_num_roll_text">0</string>
+    <string name="max_num_roll_text">10</string>
+    <string name="min_text">min</string>
+    <string name="max_text">max</string>
 </resources>
