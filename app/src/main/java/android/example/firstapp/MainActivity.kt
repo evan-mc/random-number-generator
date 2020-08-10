@@ -1,6 +1,7 @@
 package android.example.firstapp
 
 import android.app.Activity
+import android.example.firstapp.databinding.ActivityMainBinding
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -17,24 +18,9 @@ import kotlin.random.Random
 
 class MainActivity : AppCompatActivity() {
 
-    lateinit var numberTextView : TextView
-
-    lateinit var numberRollLength : EditText
-    lateinit var numberRollText : TextView
-
-    lateinit var timerTextView : TextView
-
-    lateinit var rollButton : Button
+    private lateinit var binding : ActivityMainBinding
 
     lateinit var handler : Handler
-
-    lateinit var checkBox : AppCompatCheckBox
-
-    lateinit var startButton : Button
-    lateinit var stopButton : Button
-
-    lateinit var timerLength : EditText
-    lateinit var timerLengthText: TextView
 
     var hasStartedTimer : Boolean = false
 
@@ -44,7 +30,7 @@ class MainActivity : AppCompatActivity() {
         var countdown : Int = 0
         override fun run() {
             Log.i("MainActivity", "called repeatRollUntilStopped.run()")
-            numberTextView.text = randomNum(numberRollLength.text)
+            binding.numberTextView.text = randomNum(binding.numberLength.text)
 
             handler.postDelayed(this, 100)
 
@@ -56,25 +42,25 @@ class MainActivity : AppCompatActivity() {
             if(countdown >= (time * 1000))
             {
                 handler.removeMessages(0)
-                timerTextView.text = getString(R.string.timer_text, time.toString())
+                binding.timerTextView.text = getString(R.string.timer_text, time.toString())
                 countdown = 0
                 hasStartedTimer = false
 
                 //unhide ui elements
-                timerLength.visibility = View.VISIBLE
-                timerLengthText.visibility = View.VISIBLE
+                binding.timerEditText.visibility = View.VISIBLE
+                binding.timerLengthTextView.visibility = View.VISIBLE
 
-                numberRollLength.visibility = View.VISIBLE
-                numberRollText.visibility = View.VISIBLE
+                binding.numberLength.visibility = View.VISIBLE
+                binding.digitTextView.visibility = View.VISIBLE
             }
 
             countdown += 100
 
             if(countdown % 1000 == 0)
             {
-                val currentTime = timerTextView.text.toString().substring(17).toInt()
+                val currentTime = binding.timerTextView.text.toString().substring(17).toInt()
                 val newTime = currentTime - 1
-                timerTextView.text = getString(R.string.timer_text, newTime.toString())
+                binding.timerTextView.text = getString(R.string.timer_text, newTime.toString())
             }
         }
 
@@ -82,106 +68,87 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         handler = Handler(Looper.getMainLooper())
 
-        numberTextView = findViewById(R.id.number_text_view)
+        binding.timerTextView.text = getString(R.string.timer_text, time.toString())
 
-        numberRollLength = findViewById(R.id.number_length)
-        numberRollText = findViewById(R.id.digit_text_view)
-
-        timerTextView = findViewById(R.id.timer_text_view)
-
-        timerTextView.text = getString(R.string.timer_text, time.toString())
-
-        checkBox = findViewById(R.id.checkbox)
-
-        timerLength = findViewById(R.id.timer_edit_text)
-        timerLengthText = findViewById(R.id.timer_length_text_view)
-
-
-        rollButton = findViewById(R.id.roll_button)
-
-        rollButton.setOnClickListener {
-            numberTextView.text = randomNum(numberRollLength.text)
+        binding.rollButton.setOnClickListener {
+            binding.numberTextView.text = randomNum(binding.numberLength.text)
         }
 
-        startButton = findViewById(R.id.start_button)
-        startButton.setOnClickListener {
+        binding.startButton.setOnClickListener {
             if(!hasStartedTimer) {
                 repeatRollUntilStopped.run()
                 hasStartedTimer = true
 
                 //hide ui elements that shouldnt be visible during the timer
-                timerLength.visibility = View.GONE
-                timerLengthText.visibility = View.GONE
+                binding.timerEditText.visibility = View.GONE
+                binding.timerLengthTextView.visibility = View.GONE
 
-                numberRollLength.visibility = View.GONE
-                numberRollText.visibility = View.GONE
+                binding.numberLength.visibility = View.GONE
+                binding.digitTextView.visibility = View.GONE
             }
         }
 
-        stopButton = findViewById(R.id.stop_button)
-        stopButton.setOnClickListener {
+        binding.stopButton.setOnClickListener {
             Log.i("MainActivity", "stop button pressed")
-            handler.removeMessages(0)
-            timerTextView.text = getString(R.string.timer_text, time.toString())
 
             //reset countdown for next click
             repeatRollUntilStopped.countdown = 0
+            handler.removeMessages(0)
             hasStartedTimer = false
 
-            //unhide ui elements
-            timerLength.visibility = View.VISIBLE
-            timerLengthText.visibility = View.VISIBLE
+            binding.timerTextView.text = getString(R.string.timer_text, time.toString())
 
-            numberRollLength.visibility = View.VISIBLE
-            numberRollText.visibility = View.VISIBLE
+            //unhide ui elements
+            binding.timerEditText.visibility = View.VISIBLE
+            binding.timerLengthTextView.visibility = View.VISIBLE
+
+            binding.numberLength.visibility = View.VISIBLE
+            binding.digitTextView.visibility = View.VISIBLE
         }
 
-        numberRollLength.setOnKeyListener { _, keyCode, _ ->
+        binding.numberLength.setOnKeyListener { _, keyCode, _ ->
             //prevents edittext from being empty
-            if(keyCode == KeyEvent.KEYCODE_DEL && numberRollLength.text.isEmpty()) {
+            if(keyCode == KeyEvent.KEYCODE_DEL && binding.numberLength.text.isEmpty()) {
 
-                numberRollLength.setText("0")
+                binding.numberLength.setText("0")
 
                 //set cursor to end of edittext
-                numberRollLength.setSelection(numberRollLength.text.length)
+                binding.numberLength.setSelection(binding.numberLength.text.length)
             }
-            else if(numberRollLength.text[0] == '0') //strip leading 0 if adding another digit
+            else if(binding.numberLength.text[0] == '0') //strip leading 0 if adding another digit
                 when (keyCode) {
-                    KeyEvent.KEYCODE_1, KeyEvent.KEYCODE_2, KeyEvent.KEYCODE_3, KeyEvent.KEYCODE_4,
-                    KeyEvent.KEYCODE_5, KeyEvent.KEYCODE_6, KeyEvent.KEYCODE_7, KeyEvent.KEYCODE_8,
-                    KeyEvent.KEYCODE_9
-                    -> numberRollLength.setText(numberRollLength.text.substring(1))
+                    in 8..16 -> binding.numberLength.setText(binding.numberLength.text.substring(1))
+                    //8 through 16 is the keycode event for numbers 1 through 9
                 }
             false
         }
 
-        timerLength.setOnKeyListener { _, keyCode, _ ->
+        binding.timerEditText.setOnKeyListener { _, keyCode, _ ->
             //prevents edittext from being empty
-            if(keyCode == KeyEvent.KEYCODE_DEL && timerLength.text.isEmpty()) {
+            if(keyCode == KeyEvent.KEYCODE_DEL && binding.timerEditText.text.isEmpty()) {
 
-                timerLength.setText("0")
+                binding.timerEditText.setText("0")
 
                 //set cursor to end of edittext
-                timerLength.setSelection(timerLength.text.length)
+                binding.timerEditText.setSelection(binding.timerEditText.text.length)
             }
             else if(keyCode == KeyEvent.KEYCODE_ENTER) {
                 Log.i("MainActivity", "Done button pressed!")
-                timerTextView.text = getString(R.string.timer_text, timerLength.text)
+                binding.timerTextView.text = getString(R.string.timer_text, binding.timerEditText.text)
 
-                time = timerLength.text.toString().toInt()
+                time = binding.timerEditText.text.toString().toInt()
 
                 hideKeyboard(this)
             }
-            else if(timerLength.text[0] == '0') //strip leading 0 if adding another digit
+            else if(binding.timerEditText.text[0] == '0') //strip leading 0 if adding another digit
                 when (keyCode) {
-                    KeyEvent.KEYCODE_1, KeyEvent.KEYCODE_2, KeyEvent.KEYCODE_3, KeyEvent.KEYCODE_4,
-                    KeyEvent.KEYCODE_5, KeyEvent.KEYCODE_6, KeyEvent.KEYCODE_7, KeyEvent.KEYCODE_8,
-                    KeyEvent.KEYCODE_9
-                    -> timerLength.setText(timerLength.text.substring(1))
+                    in 8..16 -> binding.timerEditText.setText(binding.timerEditText.text.substring(1))
+                    //8 through 16 is the keycode event for numbers 1 through 9
                 }
             false
         }
@@ -203,39 +170,40 @@ class MainActivity : AppCompatActivity() {
     fun onCheckboxClicked(view: View) {
         if(view is CheckBox) {
 
-            if(checkBox.isChecked) {
+            if(binding.checkbox.isChecked) {
                 //hide roll button, show stop, start and timer countdown
-                rollButton.visibility = View.GONE
+                binding.rollButton.visibility = View.GONE
 
-                startButton.visibility = View.VISIBLE
-                stopButton.visibility = View.VISIBLE
+                binding.startButton.visibility = View.VISIBLE
+                binding.stopButton.visibility = View.VISIBLE
 
-                timerTextView.visibility = View.VISIBLE
+                binding.timerTextView.visibility = View.VISIBLE
 
-                timerLength.visibility = View.VISIBLE
-                timerLengthText.visibility = View.VISIBLE
+                binding.timerEditText.visibility = View.VISIBLE
+                binding.timerLengthTextView.visibility = View.VISIBLE
             }
             else {
                 //do the opposite
-                rollButton.visibility = View.VISIBLE
-
-                handler.removeMessages(0)
-                timerTextView.text = getString(R.string.timer_text, time.toString())
                 repeatRollUntilStopped.countdown = 0
+                handler.removeMessages(0)
                 hasStartedTimer = false
 
-                startButton.visibility = View.GONE
-                stopButton.visibility = View.GONE
+                binding.rollButton.visibility = View.VISIBLE
 
-                timerTextView.visibility = View.GONE
+                binding.timerTextView.text = getString(R.string.timer_text, time.toString())
 
-                timerLength.visibility = View.GONE
-                timerLengthText.visibility = View.GONE
+                binding.startButton.visibility = View.GONE
+                binding.stopButton.visibility = View.GONE
+
+                binding.timerTextView.visibility = View.GONE
+
+                binding.timerEditText.visibility = View.GONE
+                binding.timerLengthTextView.visibility = View.GONE
             }
 
             //make visible in the event they were hidden from starting the timer
-            numberRollLength.visibility = View.VISIBLE
-            numberRollText.visibility = View.VISIBLE
+            binding.numberLength.visibility = View.VISIBLE
+            binding.digitTextView.visibility = View.VISIBLE
         }
     }
 
